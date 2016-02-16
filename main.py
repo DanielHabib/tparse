@@ -32,24 +32,40 @@ class TParse:
         """
         tags = []
         i = 0
+        cleansed_string = ""
         while i < len(text):
             char = text[i]
             if char == '<':
+                tag = check_tag(text, i)
                 if is_opener(text, i):
-                    tag = check_tag(text, i)
                     tags.append(tag)
                     i += len(tag)
+                    if tag in self.accepted_tags:
+                        cleansed_string += tag
                 else:
-                    tag = check_tag(text, i)
                     opener = tags.pop()
                     if '</' + opener[1:] != tag:
                         raise tparse_exceptions.BadTagStructure("Mismatched Tag Structure")
                     i += len(tag)
+                    if make_opener(tag) in self.accepted_tags:
+                        cleansed_string += tag
             else:
+                cleansed_string += char
                 i += 1
         if tags:
             raise tparse_exceptions.MissingClosingTag("There are {0} tags that are never closed".format(len(tags)))
-        return text
+        return cleansed_string
+
+def make_opener(tag):
+    """
+
+    Args:
+        tag (str): The string to make the closer for
+
+    Returns: str, the associated opener
+
+    """
+    return '<' + tag[2:]
 
 
 def check_tag(text, i):

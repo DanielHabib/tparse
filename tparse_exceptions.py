@@ -18,4 +18,3 @@ class MissingClosingTag(TParseException):
 
 class InvalidTag(TParseException):
     """The Tag is Invalid"""
-

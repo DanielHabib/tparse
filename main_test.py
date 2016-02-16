@@ -1,3 +1,4 @@
+from faker import Faker
 from unittest import TestCase
 
 from tparse_exceptions import BadTagStructure, InvalidTag, MissingClosingTag
@@ -33,3 +34,21 @@ class TParseTest(TestCase):
 
         with self.assertRaises(BadTagStructure):
             tparse.tparse(string)
+
+    def test_purge_tags_from_string(self):
+        """Purge Tags from a string"""
+        tparse = TParse()
+        fake = Faker()
+        word = fake.word()
+        string = "<em>" + word + "</em>"
+        r_string = tparse.tparse(string)
+        self.assertEqual(r_string, word)
+
+    def test_purge_tags_from_string_with_accepted_tags(self):
+        """Purge Tags from a string with Exception"""
+        tparse = TParse(accepted_tags=['<em>'])
+        fake = Faker()
+        word = fake.word()
+        string = "<em>" + word + "</em>"
+        r_string = tparse.tparse('<bar>' + string + '</bar>')
+        self.assertEqual(r_string, string)
