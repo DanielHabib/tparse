@@ -36,8 +36,8 @@ class TParse:
         while i < len(text):
             char = text[i]
             if char == '<':
-                tag = check_tag(text, i)
-                if is_opener(text, i):
+                tag = self.check_tag(text, i)
+                if self.is_opener(text, i):
                     tags.append(tag)
                     i += len(tag)
                     if tag in self.accepted_tags:
@@ -47,7 +47,7 @@ class TParse:
                     if '</' + opener[1:] != tag:
                         raise tparse_exceptions.BadTagStructure("Mismatched Tag Structure")
                     i += len(tag)
-                    if make_opener(tag) in self.accepted_tags:
+                    if self.make_opener(tag) in self.accepted_tags:
                         cleansed_string += tag
             else:
                 cleansed_string += char
@@ -56,55 +56,52 @@ class TParse:
             raise tparse_exceptions.MissingClosingTag("There are {0} tags that are never closed".format(len(tags)))
         return cleansed_string
 
-def make_opener(tag):
-    """
+    @staticmethod
+    def make_opener(tag):
+        """
 
-    Args:
-        tag (str): The string to make the closer for
+        Args:
+            tag (str): The string to make the closer for
 
-    Returns: str, the associated opener
+        Returns: str, the associated opener
 
-    """
-    return '<' + tag[2:]
+        """
+        return '<' + tag[2:]
 
+    @staticmethod
+    def check_tag(text, i):
+        """
+        Args:
+            text (str):
+            i (int):
 
-def check_tag(text, i):
-    """
-    Args:
-        text (str):
-        i (int):
+        Returns: The tag that has been found, otherwise return None
 
-    Returns: The tag that has been found, otherwise return None
+        """
+        tag = ''
+        while len(text) > i:
+            char = text[i]
+            if char == ' ':
+                raise tparse_exceptions.InvalidTag("Tag in string`{0}`has a blank space".format(char))
 
-    """
-    tag = ''
-    while len(text) > i:
-        char = text[i]
-        if char == ' ':
-            raise tparse_exceptions.InvalidTag("Tag in string`{0}`has a blank space".format(char))
+            tag += char
 
-        tag += char
+            if char == '>':
+                return tag
+            i += 1
+        raise tparse_exceptions.MissingClosingTag("Tag is never closed")
 
-        if char == '>':
-            return tag
-        i += 1
-    raise tparse_exceptions.MissingClosingTag("Tag is never closed")
+    @staticmethod
+    def is_opener(text, i):
+        """
 
+        Args:
+            text (str):
+            i (int):
 
-def is_opener(text, i):
-    """
+        Returns: Bool, returns whether the string is an opener or not
 
-    Args:
-        text (str):
-        i (int):
-
-    Returns: Bool, returns whether the string is an opener or not
-
-    """
-    if i < len(text):
-        return text[i + 1] != '/'
-    raise tparse_exceptions.MissingClosingTag("Tag is never closed")
-
-
-
-
+        """
+        if i < len(text):
+            return text[i + 1] != '/'
+        raise tparse_exceptions.MissingClosingTag("Tag is never closed")
